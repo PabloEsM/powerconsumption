@@ -16,12 +16,7 @@
 
         <script type="text/javascript">
 
-/*            var data = [[3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 4, 4, 4, 4, 6, 6, 6, 6, 7, 7, 7, 7],
-                [3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 4, 4, 4, 4, 6, 6, 6, 6, 7, 7, 7, 7],
-                [3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 4, 4, 4, 4, 6, 6, 6, 6, 7, 7, 7, 7],
-                [3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 4, 4, 4, 4, 6, 6, 6, 6, 7, 7, 7, 7],
-                [3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 4, 4, 4, 4, 6, 6, 6, 6, 7, 7, 7, 7]];
-*/
+/*
             var data = [{hour: 0, day: 1, week: 1, month: 1, power: 30},
                 {hour: 1, day: 1, week: 1, month: 1, power: 40},
                 {hour: 2, day: 1, week: 1, month: 1, power: 50},
@@ -40,11 +35,12 @@
                 {hour: 3, day: 270, week: 1, month: 1, power: 26},
                 {hour: 15, day: 360, week: 1, month: 1, power: 39},
                 ];
-
+*/
             var svg = d3.select("body").append("svg"),
                 margin = {top: 50, bottom: 50, left: 50, right: 50},
                 height = 600,
-                width = 600;
+                width = 600,
+                duration = 2500;
     
             svg.attr("height", height)
                 .attr("width", width);
@@ -72,32 +68,35 @@
                 return [+xPos.toFixed(3), +yPos.toFixed(3)];
             };
 
+            d3.json("data/powerConsumpData.json", function(powerJson) {
 
-            d3.select("svg").selectAll("circle")
-                .data(data)
-              .enter()
-                .append("circle")
-                .style("fill", "steelblue")
-                .attr("r", function(d) { return d.power / 8 ; })
-                .attr("cx", function(d) {return xScale(d.hour); })
-                .attr("cy", function(d) {return yScale(d.day); });
+                d3.select("svg").selectAll("circle")
+                    .data(powerJson)
+                  .enter()
+                    .append("circle")
+                    .style("fill", "steelblue")
+                    .attr("r", function(d) { return d.power / 30 ; })
+                    .attr("cx", function(d) {return xScale(d.hour); })
+                    .attr("cy", function(d) {return yScale(d.day); });
+
+            });
 
             function viewDaysYear() {
                 d3.select("svg").selectAll("circle")
-                  .transition().duration(1000)
+                  .transition().duration(duration)
                     .attr("cx", function(d) {
-                        pos = mapToCircle(300, 365, d.day);
+                        pos = mapToCircle(300, 365, (30 * (d.month - 1) + d.dayInMonth) );
                         return pos[0];
                     })
                     .attr("cy", function(d) {
-                        pos = mapToCircle(300, 365, d.day);
+                        pos = mapToCircle(300, 365, (30 * (d.month - 1) + d.dayInMonth));
                         return pos[1];
                     });
             }
 
             function viewMatrix() {
                 d3.select("svg").selectAll("circle")
-                  .transition().duration(1000)
+                  .transition().duration(duration)
                     .attr("cx", function(d) {return xScale(d.hour); })
                     .attr("cy", function(d) {return yScale(d.day); });
             }
@@ -120,9 +119,9 @@
                 */
 
                 for (var i = 0; i < 7; i++) {
-                    dOrigin = mapToCircle(r, i+7, i+1);
+                    dOrigin = mapToCircle(r, 7, i+1);
                     d = d3.selectAll("circle")
-                      .filter(function(d) {return (d.day % (i+7) === 0) || (d.day === i+1); });
+                      .filter(function(d) {return d.dayInWeek === i+1; });
                     daysWeekUpdate(d, dOrigin);
                 };
 
@@ -133,7 +132,7 @@
 
             var daysWeekUpdate = function(selection, origin) {
                 selection
-                  .transition().duration(1000)
+                  .transition().duration(duration)
                     .attr("cx", function(d) {
                         posRel = mapToCircle(30, 24, d.hour);
                         return posRel[0] + origin[0];
