@@ -6,6 +6,7 @@ var svg = d3.select("body").append("svg"),
     view = 'matrix';
 
 var powerJsonSimple = [];
+var powerDay = [];
 
 
 var zoomBehav = d3.behavior.zoom();
@@ -20,7 +21,7 @@ svg.attr("height", height)
 
 
 var xMatrixScale = d3.scale.linear()
-    .domain([0, 23])
+    .domain([1, 7])
     .range([0, width]);
 
 var yMatrixScale = d3.scale.linear()
@@ -47,20 +48,34 @@ var mapToCircle = function (rad, nPoints, point) {
 d3.json("data/powerConsumpData.json", function(powerJson) {
 
     //var powerJsonSimple = powerJson.filter(function(element) { return element.month === 7; }); 
-     powerJsonSimple = powerJson;//.slice(0,1200); 
+    //powerJsonSimple = powerJson;//.slice(0,1200); 
+
+    powerDay.push(powerJson[0]); // The first pattern is added two times!!!!!
+    for (var i = 0; i <= powerJson.length - 1; i++) {
+        for (var j = 0; j <= powerDay.length - 1; j++) {
+            if (powerDay[j].day === powerJson[i].day) {
+                powerDay[j].power = powerDay[j].power + powerJson[i].power;
+                break;
+            }
+            else if (j === (powerDay.length - 1)){
+                powerDay.push(powerJson[i]);
+                break;
+            }
+        };
+        
+    };
 
     d3.select("svg")
         .selectAll("circle")
-        .data(powerJsonSimple, function(d) { return d.power; })
+        .data(powerDay, function(d) { return d.power; })
       .enter()
         .append("circle")
         .style("fill", "steelblue")
-        .attr("r", function(d) { return d.power / 30 ; })
+        .attr("r", function(d) { return d.power / 600 ; })
         .attr("cx", function(d) { return xPos(d); })
         .attr("cy", function(d) { return yPos(d); });
 
 });
-
 
 
 function viewDaysYear() {
@@ -79,14 +94,29 @@ function viewMatrix() {
         .attr("cy", function(d) { return yPos(d); });
 }
 
+function viewMonthsYear() {
+    view = "monthsYear";
+    d3.select("svg").selectAll("circle")
+      .transition().duration(duration)
+        .attr("cx", function(d) { return xPos(d); })
+        .attr("cy", function(d) { return yPos(d); })
+}
+
 
 function xPos(d) {
     if (view === "matrix") {
-        return xMatrixScale(d.hour);
+        return xMatrixScale(d.dayInWeek);
     }
+    
     else if (view === "daysYear") {
-        pos = mapToCircle(200, 365, (30 * (d.month - 1) + d.dayInMonth) );
+        var pos = mapToCircle(200, 365, (30 * (d.month - 1) + d.dayInMonth) );
         return pos[0];
+    }
+    
+    else if (view === "monthsYear") {
+        var origin = mapToCircle(200, 12, d.month);
+        var posRel = mapToCircle(30, 30, d.dayInMonth);
+        return origin[0] + posRel[0];
     }
     // add the other view cases
 };
@@ -95,12 +125,22 @@ function yPos(d) {
     if (view === "matrix") {
         return yMatrixScale(d.day);
     }
+    
     else if (view === "daysYear") {
-        pos = mapToCircle(200, 365, (30 * (d.month - 1) + d.dayInMonth) );
+        var pos = mapToCircle(200, 365, (30 * (d.month - 1) + d.dayInMonth) );
         return pos[1];
+    }
+
+    else if (view === "monthsYear") {
+        var origin = mapToCircle(200, 12, d.month);
+        var posRel = mapToCircle(30, 30, d.dayInMonth);
+        return origin[1] + posRel[1];
     }
     // add the other view cases
 };
+
+
+
 
 
 
@@ -139,7 +179,7 @@ function zoom() {
 
     var selection = d3.select("svg")
         .selectAll("circle")
-      .data(powerJsonSimple, function(d) { return d.power; });
+      .data(powerDay, function(d) { return d.power; });
 
     selection
         .attr("cx", function(d) { return d3.event.translate[0] + d3.event.scale * xPos(d); })
@@ -148,7 +188,7 @@ function zoom() {
     selection.enter()
         .append("circle")
         .style("fill", "steelblue")
-        .attr("r", function(d) { return d.power / 30 ; })
+        .attr("r", function(d) { return d.power / 600 ; })
         .attr("cx", function(d) { return d3.event.translate[0] + d3.event.scale * xPos(d); })
         .attr("cy", function(d) { return d3.event.translate[1] + d3.event.scale * yPos(d); });
 
@@ -159,13 +199,13 @@ function zoom() {
         })
         .remove();
 
-    d3.selectAll("circle")
+   /* d3.selectAll("circle")
       .filter(function(d) {
         if (zoomBehav.scale() < 5) {
             return (d.dayInWeek ===  1) || (d.dayInWeek ===  3) || (d.dayInWeek ===  5);
         }
       })
-      .remove();
+      .remove(); */
 
     
 
