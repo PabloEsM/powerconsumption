@@ -7,6 +7,8 @@ var svg = d3.select("body").append("svg"),
 
 var powerJsonSimple = [];
 var powerDay = [];
+var powerWeekHour = [];
+var powerMonthHour = [];
 
 
 var zoomBehav = d3.behavior.zoom();
@@ -50,20 +52,50 @@ d3.json("data/powerConsumpData.json", function(powerJson) {
     //var powerJsonSimple = powerJson.filter(function(element) { return element.month === 7; }); 
     //powerJsonSimple = powerJson;//.slice(0,1200); 
 
-    powerDay.push(powerJson[0]); // The first pattern is added two times!!!!!
+    powerDay.push(clone(powerJson[0])); // The first pattern is added two times!?!?!!!
     for (var i = 0; i <= powerJson.length - 1; i++) {
         for (var j = 0; j <= powerDay.length - 1; j++) {
             if (powerDay[j].day === powerJson[i].day) {
-                powerDay[j].power = powerDay[j].power + powerJson[i].power;
+                powerDay[j].power += powerJson[i].power;
                 break;
             }
             else if (j === (powerDay.length - 1)){
-                powerDay.push(powerJson[i]);
+                powerDay.push(clone(powerJson[i]));
                 break;
             }
-        };
-        
+        };     
     };
+
+    powerWeekHour.push(clone(powerJson[0]));
+    for (var i = 0; i <= powerJson.length - 1; i++) {
+        for (var j = 0; j <= powerWeekHour.length - 1; j++) {
+            if (powerWeekHour[j].dayInWeek === powerJson[i].dayInWeek &
+                powerWeekHour[j].hour === powerJson[i].hour) {
+                powerWeekHour[j].power += powerJson[i].power;
+                break;
+            }
+            else if (j === (powerWeekHour.length - 1)){
+                powerWeekHour.push(clone(powerJson[i]));
+                break;
+            }
+        };     
+    }
+
+    powerMonthHour.push(clone(powerJson[0]));
+    for (var i = 0; i <= powerJson.length - 1; i++) {
+        for (var j = 0; j <= powerMonthHour.length - 1; j++) {
+            if (powerMonthHour[j].dayInMonth === powerJson[i].dayInMonth &
+                powerMonthHour[j].hour === powerJson[i].hour) {
+                powerMonthHour[j].power += powerJson[i].power;
+                break;
+            }
+            else if (j === (powerMonthHour.length - 1)){
+                powerMonthHour.push(clone(powerJson[i]));
+                break;
+            }
+        };     
+    }
+
 
     d3.select("svg")
         .selectAll("circle")
@@ -79,27 +111,266 @@ d3.json("data/powerConsumpData.json", function(powerJson) {
 
 
 function viewDaysYear() {
+    if (view === "daysWeek") {
+        gatherAndDestroyDaysWeek()
+        zoomBehav.scale(1);
+        zoomBehav.translate([0, 0]);
+        view = "daysYear";
+        return;
+    }
+
     view = "daysYear";
     d3.select("svg").selectAll("circle")
       .transition().duration(duration)
         .attr("cx", function(d) { return xPos(d); })
         .attr("cy", function(d) { return yPos(d); });
+    
+    zoomBehav.scale(1);
+    zoomBehav.translate([0, 0]);
 }
 
 function viewMatrix() {
+    if (view === "daysWeek") {
+        gatherAndDestroyDaysWeek()
+        zoomBehav.scale(1);
+        zoomBehav.translate([0, 0]);
+        view = "matrix";
+        return;
+    }
+
     view = "matrix";
     d3.select("svg").selectAll("circle")
       .transition().duration(duration)
         .attr("cx", function(d) { return xPos(d); })
         .attr("cy", function(d) { return yPos(d); });
+    
+    zoomBehav.scale(1);
+    zoomBehav.translate([0, 0]);
 }
 
 function viewMonthsYear() {
-    view = "monthsYear";
+    if (view === "daysWeek") {
+        gatherAndDestroyDaysWeek()
+        zoomBehav.scale(1);
+        zoomBehav.translate([0, 0]);
+        view = "monthsYear";
+    }
+
+    else if (view === "daysMonth") {
+        gatherAndDestroyDaysMonth()
+        zoomBehav.scale(1);
+        zoomBehav.translate([0, 0]);
+        view = "monthsYear";    
+    }
+
+    else {
+        view = "monthsYear";
+        d3.select("svg").selectAll("circle")
+          .transition().duration(duration)
+            .attr("cx", function(d) { return xPos(d); })
+            .attr("cy", function(d) { return yPos(d); })
+        
+        zoomBehav.scale(1);
+        zoomBehav.translate([0, 0]);
+    }
+}
+
+function viewDaysWeek() {
+    view = "daysWeek";
+    gatherAndCreateDaysWeek()
+
+    zoomBehav.scale(1);
+    zoomBehav.translate([0, 0]);
+}
+
+function viewDaysMonth() {
+    view = "daysMonth";
+    gatherAndCreateDaysMonth();
+
+    zoomBehav.scale(1);
+    zoomBehav.translate([0, 0]);
+}
+
+
+
+
+
+function gatherAndDestroyDaysWeek() {
+    d3.select("svg").selectAll("circle")
+      .transition().duration(duration/4)
+        .attr("cx", function(d) {
+            var origin = mapToCircle(200, 7, d.dayInWeek);
+            return origin[0] + 24; //24 is the inner circunference radio
+        })
+        .attr("cy", function(d) {
+            var origin = mapToCircle(200, 7, d.dayInWeek);
+            return origin[1] + 24;
+        })
+        .call(endall, createDaysYearFromWeek)
+        .remove(); 
+}
+
+function gatherAndDestroyDaysMonth() {
+    d3.select("svg").selectAll("circle")
+      .transition().duration(duration/4)
+        .attr("cx", function(d) {
+            var origin = mapToCircle(200, 30, d.dayInMonth);
+            return origin[0] + 10; //24 is the inner circunference radio
+        })
+        .attr("cy", function(d) {
+            var origin = mapToCircle(200, 30, d.dayInMonth);
+            return origin[1] + 10;
+        })
+        .call(endall, createDaysYearFromMonth)
+        .remove(); 
+}
+
+function createDaysYearFromWeek() {
+    var selection = d3.select("svg").selectAll("circle")
+        .data(powerDay, function(d) { return d.power; });
+
+    selection.enter()
+        .append("circle")
+        .attr("class", "new")
+        .style("fill", "steelblue")
+        .attr("r", function(d) { return d.power / 600; })
+        .attr("cx", function(d) {
+            var origin = mapToCircle(200, 7, d.dayInWeek);
+            return origin[0] + 24;
+        })
+        .attr("cy", function(d) {
+            var origin = mapToCircle(200, 7, d.dayInWeek);
+            return origin[1] + 24;
+        });
+
+    
+
+    selection.enter()
+        .append("circle")
+        .attr("class", "new")
+        .style("fill", "steelblue")
+        .attr("r", function(d) { return d.power / 600; })
+        .attr("cx", function(d) {
+            var origin = mapToCircle(200, 30, d.dayInMonth);
+            return origin[0] + 10;
+        })
+        .attr("cy", function(d) {
+            var origin = mapToCircle(200, 30, d.dayInMonth);
+            return origin[1] + 10;
+        });
+
+    
     d3.select("svg").selectAll("circle")
       .transition().duration(duration)
         .attr("cx", function(d) { return xPos(d); })
-        .attr("cy", function(d) { return yPos(d); })
+        .attr("cy", function(d) { return yPos(d); }); 
+
+}
+
+function createDaysYearFromMonth() {
+    var selection = d3.select("svg").selectAll("circle")
+        .data(powerDay, function(d) { return d.power; });
+
+    selection.enter()
+        .append("circle")
+        .attr("class", "new")
+        .style("fill", "steelblue")
+        .attr("r", function(d) { return d.power / 600; })
+        .attr("cx", function(d) {
+            var origin = mapToCircle(200, 30, d.dayInMonth);
+            return origin[0] + 10;
+        })
+        .attr("cy", function(d) {
+            var origin = mapToCircle(200, 30, d.dayInMonth);
+            return origin[1] + 10;
+        });
+
+    
+    d3.select("svg").selectAll("circle")
+      .transition().duration(duration)
+        .attr("cx", function(d) { return xPos(d); })
+        .attr("cy", function(d) { return yPos(d); }); 
+
+}
+
+
+
+function gatherAndCreateDaysMonth() {
+    d3.select("svg").selectAll("circle")
+      .transition().duration(duration)
+        .attr("cx", function(d) {
+            var origin = mapToCircle(200, 30, d.dayInMonth);
+            return origin[0] + 10; //24 is the inner circunference radio
+        })
+        .attr("cy", function(d) {
+            var origin = mapToCircle(200, 30, d.dayInMonth);
+            return origin[1] + 10;
+        })
+        .call(endall, createDaysMonth)
+        .remove(); 
+}
+
+function createDaysMonth() {
+    var selection = d3.select("svg").selectAll("circle")
+        .data(powerMonthHour, function(d) { return d.power; });
+
+    selection.enter()
+        .append("circle")
+        .style("fill", "steelblue")
+        .attr("r", function(d) { return d.power / 400; })
+        .attr("cx", function(d) {
+            var origin = mapToCircle(200, 30, d.dayInMonth);
+            return origin[0] + 10;
+        })
+        .attr("cy", function(d) {
+            var origin = mapToCircle(200, 30, d.dayInMonth);
+            return origin[1] + 10;
+        });
+    
+    d3.select("svg").selectAll("circle")
+      .transition().duration(duration/6)
+        .attr("cx", function(d) { return xPos(d); })
+        .attr("cy", function(d) { return yPos(d); }); 
+}
+
+
+
+function gatherAndCreateDaysWeek() {
+    d3.select("svg").selectAll("circle")
+      .transition().duration(duration)
+        .attr("cx", function(d) {
+            var origin = mapToCircle(200, 7, d.dayInWeek);
+            return origin[0] + 24; //24 is the inner circunference radio
+        })
+        .attr("cy", function(d) {
+            var origin = mapToCircle(200, 7, d.dayInWeek);
+            return origin[1] + 24;
+        })
+        .call(endall, createDaysWeek)
+        .remove(); 
+}
+
+function createDaysWeek() {
+    var selection = d3.select("svg").selectAll("circle")
+        .data(powerWeekHour, function(d) { return d.power; });
+
+    selection.enter()
+        .append("circle")
+        .style("fill", "steelblue")
+        .attr("r", function(d) { return d.power / 600; })
+        .attr("cx", function(d) {
+            var origin = mapToCircle(200, 7, d.dayInWeek);
+            return origin[0] + 24;
+        })
+        .attr("cy", function(d) {
+            var origin = mapToCircle(200, 7, d.dayInWeek);
+            return origin[1] + 24;
+        });
+    
+    d3.select("svg").selectAll("circle")
+      .transition().duration(duration/6)
+        .attr("cx", function(d) { return xPos(d); })
+        .attr("cy", function(d) { return yPos(d); }); 
 }
 
 
@@ -116,6 +387,18 @@ function xPos(d) {
     else if (view === "monthsYear") {
         var origin = mapToCircle(200, 12, d.month);
         var posRel = mapToCircle(30, 30, d.dayInMonth);
+        return origin[0] + posRel[0];
+    }
+
+    else if (view === "daysWeek") {
+        var origin = mapToCircle(200, 7, d.dayInWeek);
+        var posRel = mapToCircle(24, 24, d.hour);
+        return origin[0] + posRel[0];
+    }
+
+    else if (view === "daysMonth") {
+        var origin = mapToCircle(200, 30, d.dayInMonth);
+        var posRel = mapToCircle(10, 24, d.hour);
         return origin[0] + posRel[0];
     }
     // add the other view cases
@@ -136,6 +419,19 @@ function yPos(d) {
         var posRel = mapToCircle(30, 30, d.dayInMonth);
         return origin[1] + posRel[1];
     }
+
+    else if (view === "daysWeek") {
+        var origin = mapToCircle(200, 7, d.dayInWeek);
+        var posRel = mapToCircle(24, 24, d.hour);
+        return origin[1] + posRel[1];
+    }
+
+    else if (view === "daysMonth") {
+        var origin = mapToCircle(200, 30, d.dayInMonth);
+        var posRel = mapToCircle(10, 24, d.hour);
+        return origin[1] + posRel[1];
+    }
+        
     // add the other view cases
 };
 
@@ -145,7 +441,7 @@ function yPos(d) {
 
 
 
-
+/*
 function viewDaysWeek() {
     // Monday to Sunday
     var r = 200;
@@ -156,11 +452,11 @@ function viewDaysWeek() {
           .filter(function(d) {return d.dayInWeek === i+1; });
         daysWeekUpdate(d, dOrigin);
     };
+*/
 
 
 
 
-};
 
 var daysWeekUpdate = function(selection, origin) {
     selection
@@ -178,27 +474,28 @@ var daysWeekUpdate = function(selection, origin) {
 function zoom() {
 
     var selection = d3.select("svg")
-        .selectAll("circle")
-      .data(powerDay, function(d) { return d.power; });
-
+        .selectAll("circle");
+    //    .data(powerDay, function(d) { return d.power; });
+    
     selection
         .attr("cx", function(d) { return d3.event.translate[0] + d3.event.scale * xPos(d); })
         .attr("cy", function(d) { return d3.event.translate[1] + d3.event.scale * yPos(d); });
 
-    selection.enter()
+    /*selection.enter()
         .append("circle")
-        .style("fill", "steelblue")
+        .style("fill", "red")
         .attr("r", function(d) { return d.power / 600 ; })
         .attr("cx", function(d) { return d3.event.translate[0] + d3.event.scale * xPos(d); })
         .attr("cy", function(d) { return d3.event.translate[1] + d3.event.scale * yPos(d); });
-
-    d3.selectAll("circle")
+    */
+    
+    /*d3.selectAll("circle")
       .filter(function(d) {
             var cx = d3.event.translate[0] + d3.event.scale * xPos(d);
-            return cx > 400; 
+            return cx > 1400; 
         })
         .remove();
-
+    */
    /* d3.selectAll("circle")
       .filter(function(d) {
         if (zoomBehav.scale() < 5) {
@@ -220,6 +517,48 @@ function zoom() {
         });
  */   
         
+}
+
+
+function endall(transition, callback) {
+    var n = 0;
+    transition
+        .each(function() { ++n; })
+        .each("end", function() { if (!--n) callback.apply(this, arguments); });
+}
+
+function clone(obj) {
+    var copy;
+
+    // Handle the 3 simple types, and null or undefined
+    if (null == obj || "object" != typeof obj) return obj;
+
+    // Handle Date
+    if (obj instanceof Date) {
+        copy = new Date();
+        copy.setTime(obj.getTime());
+        return copy;
+    }
+
+    // Handle Array
+    if (obj instanceof Array) {
+        copy = [];
+        for (var i = 0, len = obj.length; i < len; i++) {
+            copy[i] = clone(obj[i]);
+        }
+        return copy;
+    }
+
+    // Handle Object
+    if (obj instanceof Object) {
+        copy = {};
+        for (var attr in obj) {
+            if (obj.hasOwnProperty(attr)) copy[attr] = clone(obj[attr]);
+        }
+        return copy;
+    }
+
+    throw new Error("Unable to copy obj! Its type isn't supported.");
 }
 
 
