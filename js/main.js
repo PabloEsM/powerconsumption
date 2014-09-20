@@ -99,7 +99,7 @@ d3.json("data/powerConsumpData.json", function(powerJson) {
 
     d3.select("svg")
         .selectAll("circle")
-        .data(powerDay, function(d) { return d.power; })
+        .data(powerDay, function(d, i) { return i; })
       .enter()
         .append("circle")
         .style("fill", "steelblue")
@@ -307,37 +307,85 @@ function toCenterPoints(callback, arg) {
     //setTimeout(function() {callback.apply(this, selection);},1000);
 }
 
+// regularPattern(['daysWeekCenter', 'daysWeek'], powerWeekHour)
+//regularPattern(['daysWeekCenter', 'matrix'], powerDay)
+//regularPattern(['daysMonthCenter', 'daysMonth'], powerMonthHour);
 
-function regularPattern() {
-    view = "daysWeekCenter";
-    var selection = d3.selectAll("svg").selectAll("circle")
-        .data(powerWeekHour);
+function regularPattern(viewSequence, dataSet) {
+    view = viewSequence[0];
+    
+    
+    selection = d3.select("svg").selectAll("circle")
+        .data(dataSet, function(d,i) { return i; });
 
-    selection.select("circle")
-        .attr("r", 10);
+    selection.exit()
+        .style("fill", "black")
+      .transition().duration(1500)
+        .attr("cx", function(d) { return xPos(d); })
+        .attr("cy", function(d) { return yPos(d); })
+        .remove();
+
+    selection.enter()
+        .append("circle")
+        .style("fill", "green")
+        .style("opacity", 0)
+        .attr("r", function(d) { return d.power / 400 ; })
+        .attr("cx", function(d) { return xPos(d); })
+        .attr("cy", function(d) { return yPos(d); });
+
+    selection
+        .style("fill", "orange")
+      .transition().duration(1500)
+        .attr("cx", function(d) { return xPos(d); })
+        .attr("cy", function(d) { return yPos(d); })
+        .call(function(currentSelection, viewSequence) {
+            view = viewSequence[1];                
+        }, viewSequence)
+        .style("fill", "red")
+        .style("opacity", 1)
+      .transition().duration(1000)
+        .attr("cx", function(d) { return xPos(d); })
+        .attr("cy", function(d) { return yPos(d); });
+
+
+/*
+    d3.select("svg").selectAll("circle")
+      .transition().duration(1500)
+        .style("fill", "green")
+        .attr("r", function(d) { return d.power / 400 ; })
+        .attr("cx", function(d) { return xPos(d); })
+        .attr("cy", function(d) { return yPos(d); })
+      .transition().duration(1)
+        .call(function(currentSelection, viewSequence, dataSet) {
+            currentSelection.style("fill", "pink");
+        }, viewSequence, dataSet);
+*/
+
+   /* selection.enter()
+        .append("circle")
+        .style("fill", "green")
+        .attr("r", function(d) { return d.power / 400 ; });
 
     selection.transition().duration(1500)
         .style("fill", "green")
         .attr("r", function(d) { return d.power / 400 ; })
         .attr("cx", function(d) { return xPos(d); })
         .attr("cy", function(d) { return yPos(d); })
+      .transition().duration(10)
+        .call(updateEnter, selection.enter())
       .transition().duration(1500)
-        .call(function() {view = "daysWeek"})
+        .call(function() {view = viewSequence[1]})
         .attr("cx", function(d) { return xPos(d); })
         .attr("cy", function(d) { return yPos(d); })
         .style("fill", "blue");
 
-    selection.enter()
-        .append("circle")
-        .style("fill", "red")
-        .attr("r", function(d) { return d.power / 400 ; })
-        .attr("cx", function(d) { return xPos(d); })
-        .attr("cy", function(d) { return yPos(d); });
-
     selection.exit()
         .style("fill", "black")
-        .transition().duration(150)
-        .call(function() {view = "daysWeek";} )
+      .transition().duration(1500)
+        .attr("r", function(d) { return d.power / 400 ; })
+        .attr("cx", function(d) { return xPos(d); })
+        .attr("cy", function(d) { return yPos(d); })
+      .transition().duration(150)
         .remove();
 
     /*d3.select("svg").selectAll("circle")
@@ -347,13 +395,19 @@ function regularPattern() {
         .attr("cy", function(d) { return yPos(d); });
     */
 
+
 }
 
-function printlog() {
-    if (hasClass(this, "sentinel")) {
-        console.log("sentinel!")
-    }
-};
+function updateEnter(arg1, arg2) {
+    arg2.append("circle")
+        .style("fill", "green")
+        .attr("r", function(d) { return d.power / 400 ; })
+        .attr("cx", function(d) { return xPos(d); })
+        .attr("cy", function(d) { return yPos(d); });
+
+}
+
+
 
 function createPowerDay(callback) {
 
@@ -432,9 +486,6 @@ function clone(obj) {
     throw new Error("Unable to copy obj! Its type isn't supported.");
 }
 
-function hasClass(element, cls) {
-    return (' ' + element.className + ' ').indexOf(' ' + cls + ' ') > -1;
-}
 
 
             
