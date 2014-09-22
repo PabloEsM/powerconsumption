@@ -3,13 +3,31 @@ var svg = d3.select("body").append("svg"),
     height = 500,
     width = 600,
     duration = 2500,
-    view = 'matrix';
+    view = 'matrix',
+    indx = 0;
 
-var powerJsonSimple = [];
-var powerDay = [];
-var powerWeekHour = [];
-var powerMonthHour = [];
+var rDaysYear = 200,
+    rMonthsYearOuter = 200,
+    rMonthsYearInner = 30,
+    rDaysWeekOuter = 170,
+    rDaysWeekInner = 44,
+    rDaysMonthOuter = 200,
+    rDaysMonthInner = 10;
 
+var disHor_daysYear = (width/2) - rDaysYear,
+    disVer_daysYear = (height/2) - rDaysYear,
+    disHor_monthsYear = (width/2) - rMonthsYearOuter - rMonthsYearInner,
+    disVer_monthsYear = (height/2) - rMonthsYearOuter - rMonthsYearInner,
+    disHor_daysWeek = (width/2) - rDaysWeekOuter - rDaysWeekInner,
+    disVer_daysWeek = (height/2) - rDaysWeekOuter - rDaysWeekInner,
+    disHor_daysMonth = (width/2) - rDaysMonthOuter - rDaysMonthInner,
+    disVer_daysMonth = (height/2) - rDaysMonthOuter - rDaysMonthInner;
+
+var powerJsonSimple = [],
+    powerDay = [],
+    powerWeekHour = [],
+    powerMonthHour = [],
+    powerData = [];
 
 var zoomBehav = d3.behavior.zoom();
 
@@ -21,14 +39,58 @@ svg.attr("height", height)
             .on("zoom", zoom)
     );
 
+//var maxPowerDay = Math.max.apply(Math,powerDay.map(function(o){return o.power;}));
+var maxPowerDay = 5394;
+var minPowerDay = 1931;
+var maxPowerWeekHour = 7896;
+var minPowerWeekHour = 3411;
+
+var colorDay = d3.scale.linear()
+    .domain([minPowerDay, 3000, maxPowerDay])
+    .range(['#ffeda0', '#feb24c', '#f03b20']);
+
+var colorWeekHour = d3.scale.linear()
+    .domain([minPowerWeekHour, 3000, maxPowerWeekHour])
+    .range(['#ffeda0', '#feb24c', '#f03b20']);
+
+function color(power) {
+    if (indx === 0) {
+        col = colorDay(power);
+    }
+    else {
+        col = colorWeekHour(power)
+    }
+    return col;
+}
+
+
+var sizeDay = d3.scale.linear()
+.domain([minPowerDay, maxPowerDay])
+.range([5, 15]);
+
+var sizeWeekHour = d3.scale.linear()
+    .domain([minPowerWeekHour, maxPowerWeekHour])
+    .range([5, 15]);
+
+
+
+function size(power) {
+    if (indx === 0) {
+        r = sizeDay(power);
+    }
+    else {
+        r = sizeWeekHour(power)
+    }
+    return r;
+}
 
 var xMatrixScale = d3.scale.linear()
     .domain([1, 7])
-    .range([0, width]);
+    .range([0 + margin.left, width - margin.right]);
 
 var yMatrixScale = d3.scale.linear()
     .domain([0, 364])
-    .range([0, height]);
+    .range([0 + margin.top, height - margin.bottom]);
 
 var xCoor = d3.scale.linear()
     .domain([-1, 1])
@@ -96,88 +158,75 @@ d3.json("data/powerConsumpData.json", function(powerJson) {
         };     
     }
 
+    powerData.push([clone(powerDay[0]), clone(powerWeekHour[0]), clone(powerMonthHour[0])]);
+    var j = 0;
+    var k = 0;
+    for (var i = 0; i <= powerMonthHour.length -1; i++) {
+        powerData.push([clone(powerDay[j]), clone(powerWeekHour[k]), clone(powerMonthHour[i])]);
+        j === powerDay.length - 1 ? j = 0 : j++; // REPASAR EL -1
+        k === powerWeekHour.length - 1 ? k = 0 : k++;
+    }
 
     d3.select("svg")
         .selectAll("circle")
-        .data(powerDay, function(d, i) { return i; })
+        .data(powerData, function(d, i) { return i; })
       .enter()
         .append("circle")
-        .style("fill", "steelblue")
-        .attr("r", function(d) { return d.power / 600 ; })
-        .attr("cx", function(d) { return xPos(d); })
-        .attr("cy", function(d) { return yPos(d); });
+        .style("fill", function(d) { return color(d[0].power); })
+        .attr("r", function(d) { return size(d[0].power); })
+        .attr("cx", function(d) { 
+            return xPos(d[indx]);
+        })
+        .attr("cy", function(d) { return yPos(d[indx]); });
 
 });
 
 
 
-
+function renderData() {
+    d3.select("svg").selectAll("circle")
+      .transition().duration(duration)
+        .attr("cx", function(d) { return xPos(d[indx]); })
+        .attr("cy", function(d) { return yPos(d[indx]); })
+        .attr("r", function(d) { return size(d[indx].power); })
+        .style("fill", function(d) { return color(d[indx].power); });
+    
+    zoomBehav.scale(1);
+    zoomBehav.translate([0, 0]);
+}
 
 function viewMatrix() {
-    if (view === "daysWeek") {
-        view = "daysWeekCenter";
-        toCenterPoints(createPowerDay,'matrix');
-    }
-
     view = "matrix";
-    d3.select("svg").selectAll("circle")
-      .transition().duration(duration)
-        .attr("cx", function(d) { return xPos(d); })
-        .attr("cy", function(d) { return yPos(d); });
-    
-    zoomBehav.scale(1);
-    zoomBehav.translate([0, 0]);
-
+    indx = 0;
+    renderData();
 }
 
+function viewDaysYear() {
+    view = "daysYear";
+    indx = 0;
+    renderData();
+}
+
+function viewMonthsYear() {
+    view = "monthsYear";
+    indx = 0;
+    renderData();
+}
 
 function viewDaysWeek() {
-    if (view === "matrix") {
-        view = "daysWeekCenter";
-        toCenterPoints(createPowerWeekHour, 'arg');
-    }
+    view = "daysWeek";
+    indx = 1;
+    renderData();
+}
 
-    setTimeout(function() {view = "daysWeek"}, 0);
-    setTimeout(moveNewData,0);
+function viewDaysMonth() {
+    view = "daysMonth";
+    indx = 2;
+    renderData();
 }
 
 
 
-function moveNewData() {
-    d3.select("svg").selectAll("circle")
-      .transition().duration(duration)
-        .attr("cx", function(d) { return xPos(d); })
-        .attr("cy", function(d) { return yPos(d); });
-    
-    zoomBehav.scale(1);
-    zoomBehav.translate([0, 0]);
-}
-
-
-
-
-function createDaysWeek() {
-    var selection = d3.select("svg").selectAll("circle")
-        .data(powerWeekHour, function(d) { return d.power; });
-
-    selection.enter()
-        .append("circle")
-        .style("fill", "steelblue")
-        .attr("r", function(d) { return d.power / 600; })
-        .attr("cx", function(d) {
-            var origin = mapToCircle(200, 7, d.dayInWeek);
-            return origin[0] + 24;
-        })
-        .attr("cy", function(d) {
-            var origin = mapToCircle(200, 7, d.dayInWeek);
-            return origin[1] + 24;
-        });
-    
-    d3.select("svg").selectAll("circle")
-      .transition().duration(duration/6)
-        .attr("cx", function(d) { return xPos(d); })
-        .attr("cy", function(d) { return yPos(d); }); 
-}
 
 function xPos(d) {
     if (view === "matrix") {
@@ -185,78 +234,57 @@ function xPos(d) {
     }
     
     else if (view === "daysYear") {
-        var pos = mapToCircle(200, 365, (30 * (d.month - 1) + d.dayInMonth) );
-        return pos[0];
+        var pos = mapToCircle(rDaysYear, 365, (30 * (d.month - 1) + d.dayInMonth) );
+        return pos[0] + disHor_daysYear;
     }
     
     else if (view === "monthsYear") {
-        var origin = mapToCircle(200, 12, d.month);
-        var posRel = mapToCircle(30, 30, d.dayInMonth);
-        return origin[0] + posRel[0];
+        var origin = mapToCircle(rMonthsYearOuter, 12, d.month);
+        var posRel = mapToCircle(rMonthsYearInner, 30, d.dayInMonth);
+        return origin[0] + posRel[0] + disHor_monthsYear;
     }
 
     else if (view === "daysWeek") {
-        var origin = mapToCircle(200, 7, d.dayInWeek);
-        var posRel = mapToCircle(24, 24, d.hour);
-        return origin[0] + posRel[0];
+        var origin = mapToCircle(rDaysWeekOuter, 7, d.dayInWeek);
+        var posRel = mapToCircle(rDaysWeekInner, 24, d.hour);
+        return origin[0] + posRel[0] + disHor_daysWeek;
     }
 
     else if (view === "daysMonth") {
-        var origin = mapToCircle(200, 30, d.dayInMonth);
-        var posRel = mapToCircle(10, 24, d.hour);
-        return origin[0] + posRel[0];
-    }
-
-    else if (view === "daysWeekCenter") {
-        var origin = mapToCircle(200, 7, d.dayInWeek);
-        return origin[0] + 24;
-    }
-
-    else if (view === "daysMonthCenter") {
-        var origin = mapToCircle(200, 30, d.dayInMonth);
-        return origin[0] + 24;
+        var origin = mapToCircle(rDaysMonthOuter, 30, d.dayInMonth);
+        var posRel = mapToCircle(rDaysMonthInner, 24, d.hour);
+        return origin[0] + posRel[0] + disHor_daysMonth;
     }
     // add the other view cases
 }
 
 function yPos(d) {
     if (view === "matrix") {
-        return yMatrixScale(d.day);
+        return yMatrixScale((30 * (d.month - 1) + d.dayInMonth));
     }
     
     else if (view === "daysYear") {
-        var pos = mapToCircle(200, 365, (30 * (d.month - 1) + d.dayInMonth) );
-        return pos[1];
+        var pos = mapToCircle(rDaysYear, 365, (30 * (d.month - 1) + d.dayInMonth) );
+        return pos[1] + disVer_daysYear;
     }
 
     else if (view === "monthsYear") {
-        var origin = mapToCircle(200, 12, d.month);
-        var posRel = mapToCircle(30, 30, d.dayInMonth);
-        return origin[1] + posRel[1];
+        var origin = mapToCircle(rMonthsYearOuter, 12, d.month);
+        var posRel = mapToCircle(rMonthsYearInner, 30, d.dayInMonth);
+        return origin[1] + posRel[1] + disVer_monthsYear;
     }
 
     else if (view === "daysWeek") {
-        var origin = mapToCircle(200, 7, d.dayInWeek);
-        var posRel = mapToCircle(24, 24, d.hour);
-        return origin[1] + posRel[1];
+        var origin = mapToCircle(rDaysWeekOuter, 7, d.dayInWeek);
+        var posRel = mapToCircle(rDaysWeekInner, 24, d.hour);
+        return origin[1] + posRel[1] + disVer_daysWeek;
     }
 
     else if (view === "daysMonth") {
-        var origin = mapToCircle(200, 30, d.dayInMonth);
-        var posRel = mapToCircle(10, 24, d.hour);
-        return origin[1] + posRel[1];
-    }
-
-    else if (view === "daysWeekCenter") {
-        var origin = mapToCircle(200, 7, d.dayInWeek);
-        return origin[1] + 24;
-    }
-
-    else if (view === "daysMonthCenter") {
-        var origin = mapToCircle(200, 30, d.dayInMonth);
-        return origin[1] + 24;
-    }
-        
+        var origin = mapToCircle(rDaysMonthOuter, 30, d.dayInMonth);
+        var posRel = mapToCircle(rDaysMonthInner, 24, d.hour);
+        return origin[1] + posRel[1] + disVer_daysMonth;
+    }  
     // add the other view cases
 }
 
@@ -267,8 +295,8 @@ function zoom() {
     //    .data(powerDay, function(d) { return d.power; });
     
     selection
-        .attr("cx", function(d) { return d3.event.translate[0] + d3.event.scale * xPos(d); })
-        .attr("cy", function(d) { return d3.event.translate[1] + d3.event.scale * yPos(d); });
+        .attr("cx", function(d) { return d3.event.translate[0] + d3.event.scale * xPos(d[indx]); })
+        .attr("cy", function(d) { return d3.event.translate[1] + d3.event.scale * yPos(d[indx]); });
 
     /*selection.enter()
         .append("circle")
@@ -293,156 +321,6 @@ function zoom() {
       })
       .remove(); */ 
 }
-
-function toCenterPoints(callback, arg) {
-
-    var selection = d3.select("svg").selectAll("circle")
-      .transition().duration(1000)
-        .attr("class", "remove")
-        .attr("cx", function(d) { return xPos(d); })
-        .attr("cy", function(d) { return yPos(d); })
-        .call(endall, function() {console.log("all done"); }); ;
-
-    
-    //setTimeout(function() {callback.apply(this, selection);},1000);
-}
-
-// regularPattern(['daysWeekCenter', 'daysWeek'], powerWeekHour)
-//regularPattern(['daysWeekCenter', 'matrix'], powerDay)
-//regularPattern(['daysMonthCenter', 'daysMonth'], powerMonthHour);
-
-function regularPattern(viewSequence, dataSet) {
-    view = viewSequence[0];
-    
-    
-    selection = d3.select("svg").selectAll("circle")
-        .data(dataSet, function(d,i) { return i; });
-
-    selection.exit()
-        .style("fill", "black")
-      .transition().duration(1500)
-        .attr("cx", function(d) { return xPos(d); })
-        .attr("cy", function(d) { return yPos(d); })
-        .remove();
-
-    selection.enter()
-        .append("circle")
-        .style("fill", "green")
-        .style("opacity", 0)
-        .attr("r", function(d) { return d.power / 400 ; })
-        .attr("cx", function(d) { return xPos(d); })
-        .attr("cy", function(d) { return yPos(d); });
-
-    selection
-        .style("fill", "orange")
-      .transition().duration(1500)
-        .attr("cx", function(d) { return xPos(d); })
-        .attr("cy", function(d) { return yPos(d); })
-        .call(function(currentSelection, viewSequence) {
-            view = viewSequence[1];                
-        }, viewSequence)
-        .style("fill", "red")
-        .style("opacity", 1)
-      .transition().duration(1000)
-        .attr("cx", function(d) { return xPos(d); })
-        .attr("cy", function(d) { return yPos(d); });
-
-
-/*
-    d3.select("svg").selectAll("circle")
-      .transition().duration(1500)
-        .style("fill", "green")
-        .attr("r", function(d) { return d.power / 400 ; })
-        .attr("cx", function(d) { return xPos(d); })
-        .attr("cy", function(d) { return yPos(d); })
-      .transition().duration(1)
-        .call(function(currentSelection, viewSequence, dataSet) {
-            currentSelection.style("fill", "pink");
-        }, viewSequence, dataSet);
-*/
-
-   /* selection.enter()
-        .append("circle")
-        .style("fill", "green")
-        .attr("r", function(d) { return d.power / 400 ; });
-
-    selection.transition().duration(1500)
-        .style("fill", "green")
-        .attr("r", function(d) { return d.power / 400 ; })
-        .attr("cx", function(d) { return xPos(d); })
-        .attr("cy", function(d) { return yPos(d); })
-      .transition().duration(10)
-        .call(updateEnter, selection.enter())
-      .transition().duration(1500)
-        .call(function() {view = viewSequence[1]})
-        .attr("cx", function(d) { return xPos(d); })
-        .attr("cy", function(d) { return yPos(d); })
-        .style("fill", "blue");
-
-    selection.exit()
-        .style("fill", "black")
-      .transition().duration(1500)
-        .attr("r", function(d) { return d.power / 400 ; })
-        .attr("cx", function(d) { return xPos(d); })
-        .attr("cy", function(d) { return yPos(d); })
-      .transition().duration(150)
-        .remove();
-
-    /*d3.select("svg").selectAll("circle")
-        .style("fill", "orange")
-      .transition().duration(1500)
-        .attr("cx", function(d) { return xPos(d); })
-        .attr("cy", function(d) { return yPos(d); });
-    */
-
-
-}
-
-function updateEnter(arg1, arg2) {
-    arg2.append("circle")
-        .style("fill", "green")
-        .attr("r", function(d) { return d.power / 400 ; })
-        .attr("cx", function(d) { return xPos(d); })
-        .attr("cy", function(d) { return yPos(d); });
-
-}
-
-
-
-function createPowerDay(callback) {
-
-    d3.select("svg").selectAll("circle.remove")
-        .remove();    
-
-    d3.select("svg").selectAll("circle.new")
-        .data(powerDay, function(d) { return d.power; })
-      .enter()
-        .append("circle")
-        .attr("class", "new")
-        .style("fill", "red")
-        .attr("r", function(d) { return d.power / 400 ; })
-        .attr("cx", function(d) { return xPos(d); })
-        .attr("cy", function(d) { return yPos(d); });
-}
-
-function createPowerWeekHour(arg) {
-
-    d3.select("svg").selectAll("circle.remove")
-        .remove();    
-
-    d3.select("svg").selectAll("circle.new")
-        .data(powerWeekHour, function(d) { return d.power; })
-      .enter()
-        .append("circle")
-        .attr("class", "new")
-        .style("fill", "red")
-        .attr("r", function(d) { return d.power / 600 ; })
-        .attr("cx", function(d) { return xPos(d); })
-        .attr("cy", function(d) { return yPos(d); });
-}
-
-
-
 
 
 function endall(transition, callback) {
@@ -485,7 +363,3 @@ function clone(obj) {
 
     throw new Error("Unable to copy obj! Its type isn't supported.");
 }
-
-
-
-            
