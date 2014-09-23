@@ -1,7 +1,7 @@
 var svg = d3.select("body").append("svg"),
     margin = {top: 50, bottom: 50, left: 50, right: 50},
     height = 500,
-    width = 600,
+    width = 800,
     duration = 2500,
     view = 'matrix',
     indx = 0;
@@ -44,21 +44,30 @@ var maxPowerDay = 5394;
 var minPowerDay = 1931;
 var maxPowerWeekHour = 7896;
 var minPowerWeekHour = 3411;
+var maxPowerMonthHour = 2321;
+var minPowerMonthHour = 477;
 
 var colorDay = d3.scale.linear()
     .domain([minPowerDay, 3000, maxPowerDay])
     .range(['#ffeda0', '#feb24c', '#f03b20']);
 
 var colorWeekHour = d3.scale.linear()
-    .domain([minPowerWeekHour, 3000, maxPowerWeekHour])
+    .domain([minPowerWeekHour, 5000, maxPowerWeekHour])
+    .range(['#ffeda0', '#feb24c', '#f03b20']);
+
+var colorMonthHour = d3.scale.linear()
+    .domain([minPowerMonthHour, 1200, maxPowerMonthHour])
     .range(['#ffeda0', '#feb24c', '#f03b20']);
 
 function color(power) {
     if (indx === 0) {
         col = colorDay(power);
     }
+    else if (indx === 1){
+        col = colorWeekHour(power);
+    }
     else {
-        col = colorWeekHour(power)
+        col = colorMonthHour(power);
     }
     return col;
 }
@@ -72,14 +81,20 @@ var sizeWeekHour = d3.scale.linear()
     .domain([minPowerWeekHour, maxPowerWeekHour])
     .range([5, 15]);
 
+var sizeMonthHour = d3.scale.linear()
+    .domain([minPowerMonthHour, maxPowerMonthHour])
+    .range([5, 15]);
 
 
 function size(power) {
     if (indx === 0) {
         r = sizeDay(power);
     }
+    else if (indx === 1) {
+        r = sizeWeekHour(power);
+    }
     else {
-        r = sizeWeekHour(power)
+        r = sizeMonthHour(power);
     }
     return r;
 }
@@ -106,7 +121,6 @@ var mapToCircle = function (rad, nPoints, point) {
     var yPos = yCoor(Math.sin(angle)) * rad; 
     return [+xPos.toFixed(3), +yPos.toFixed(3)];
 };
-
 
 
 d3.json("data/powerConsumpData.json", function(powerJson) {

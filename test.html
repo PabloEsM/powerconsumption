@@ -6,16 +6,33 @@
         <title>TEST</title>
         <link rel="stylesheet" type="text/css" href="css/style.css">
         <script src="http://d3js.org/d3.v3.min.js"></script>
-        
+
+        <script type="text/javascript" src="http://code.jquery.com/jquery-1.6.2.min.js"></script> 
+        <link rel="stylesheet" type="text/css" href="css/tipsy.css">
+        <script type="text/javascript" src="js/jquery.tipsy.js"></script>
+
     <style type="text/css">
     </style>
 
     </head>
     
     <body>
-        <p>Paragraph</p>
+    <div>
+        <p><a id="parr">Paragraph</a></p>
         <script type="text/javascript" src="js/main.js"></script>
     </div>
+
+    <script>
+    $( document ).ready(function() {
+        $( "circle" ).tipsy({
+            gravity: 'w',
+            html: true, 
+            title: function() {
+                var d = this.__data__;
+                return 'circle<br>and<br><b>bold</b>: 345'; }
+            });
+        });
+    </script>
 
     </body>
     
