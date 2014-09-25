@@ -2,14 +2,24 @@
 <html>
     <head>
         <meta charset="utf-8">
+
+        <title>Energy consumption</title>
         
-        <title>TEST</title>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+        <!-- Bootstrap -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
         <link rel="stylesheet" type="text/css" href="css/style.css">
         <script src="http://d3js.org/d3.v3.min.js"></script>
 
-        <script type="text/javascript" src="http://code.jquery.com/jquery-1.6.2.min.js"></script> 
+        <!-- <script type="text/javascript" src="http://code.jquery.com/jquery-1.6.2.min.js"></script> -->
         <link rel="stylesheet" type="text/css" href="css/tipsy.css">
         <script type="text/javascript" src="js/jquery.tipsy.js"></script>
+
 
     <style type="text/css">
     </style>
@@ -17,24 +27,69 @@
     </head>
     
     <body>
-    <div>
-        <p><a id="parr">Paragraph</a></p>
-        <script type="text/javascript" src="js/main.js"></script>
-    </div>
+        <div class="jumbotron">
+            <div class="container">
+                Header
+            </div>
+        </div>
+        <div class="container">            
+            <div class="row">
+                <div class="col-md-9">
+                    <h1>Building energy consumption</h1>
+                </div>
+            </div>
 
-    <script>
-    $( document ).ready(function() {
-        $( "circle" ).tipsy({
-            gravity: 'w',
-            html: true, 
-            title: function() {
-                var d = this.__data__;
-                return 'circle<br>and<br><b>bold</b>: 345'; }
+            <div class="row">
+                <div class="view-buttons col-md-9">
+                    <button class="btn btn-primary active-button" type="button" onclick="viewMatrix()">View matrix</button>
+                    <button class="btn btn-primary" type="button" onclick="viewDaysYear()">View days year</button>
+                    <button class="btn btn-primary" type="button" onclick="viewMonthsYear()">View months year</button>
+                    <button class="btn btn-primary" type="button" onclick="viewDaysMonth()">View days month</button>
+                    <button class="btn btn-primary" type="button" onclick="viewDaysWeek()">View days week</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-9" id="vis">
+                    <script type="text/javascript" src="js/main.js"></script>
+                </div>
+                <div class="explanation col-md-3">
+                    <p><b>How to read it?</b></p>
+                    <p>Text with a brief explanation about the active view. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin nec ante est. Fusce vestibulum accumsan quam dictum dignissim. Curabitur sit amet augue imperdiet, porta ligula in, placerat metus. Morbi commodo efficitur condimentum. Donec venenatis sodales luctus. Donec maximus leo eu euismod tincidunt. Nunc sapien metus, ornare eu viverra vitae, efficitur vel ex. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Quisque sagittis dapibus semper. </p>
+                </div>
+
+            </div>
+            
+            <div class="row">
+                <div class="col-md-9">
+                    Footer/credits
+                </div>
+            </div>
+        </div>
+
+
+
+        <script>
+        $( document ).ready(function() {
+            $( "circle" ).tipsy({
+                gravity: 'w',
+                html: true, 
+                title: function() {
+                    var d = this.__data__;
+                    return 'circle<br>and<br><b>bold</b>: 345'; }
             });
-        });
-    </script>
+
+            $("button").click(function(){
+                $("button").removeClass("active-button");
+                $(this).addClass("active-button");
+            });
+        });            
+        </script>
 
     </body>
     
     
 </html>
+
+
+

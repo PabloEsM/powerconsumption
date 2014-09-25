@@ -1,4 +1,44 @@
+body {
+	background-color: #182128;
+}
 svg {
-	border: 1px solid black;
+	border: 1px solid;
+	border-color: #28303A;
+	background-color: #182128;
+}
+
+div {
+    /*border: 1px solid #FF0000;*/
+    color: #C4C4C4;
+}
+
+.btn-primary {
+	background-image: none;
+	text-shadow: none;
+	border-radius: 0px;
+	border: none;
+	text-transform: uppercase;
+	font-size: 12px;
+	width: 150px;
+}
+
+.active-button {
+	background-color: orange;
+}
+
+.explanation {
+	border-top-style: dashed;
+	border-top-color: #C4C4C4;
+	border-top-width: 1px;
+	border-bottom-style: dashed;
+  	border-bottom-color: #C4C4C4;
+    border-bottom-width: 1px;
+    padding-top: 5px;
+    
+}
+
+.view-buttons {
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 

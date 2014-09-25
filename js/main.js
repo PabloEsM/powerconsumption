@@ -1,7 +1,7 @@
-var svg = d3.select("body").append("svg"),
+var svg = d3.select("#vis").append("svg"),
     margin = {top: 50, bottom: 50, left: 50, right: 50},
-    height = 500,
-    width = 800,
+    height = 550,
+    width = 850,
     duration = 2500,
     view = 'matrix',
     indx = 0;
@@ -40,16 +40,19 @@ svg.attr("height", height)
     );
 
 //var maxPowerDay = Math.max.apply(Math,powerDay.map(function(o){return o.power;}));
-var maxPowerDay = 5394;
-var minPowerDay = 1931;
-var maxPowerWeekHour = 7896;
-var minPowerWeekHour = 3411;
-var maxPowerMonthHour = 2321;
-var minPowerMonthHour = 477;
+var maxPowerDay = 5394,
+    minPowerDay = 1931,
+    maxPowerWeekHour = 7896,
+    minPowerWeekHour = 3411,
+    maxPowerMonthHour = 2321,
+    minPowerMonthHour = 477;
+
+
+var colorsBlue2Pink = ['#17c7de', '#4aa5be', '#7588a2', '#a66782', '#c25470', '#dd415f', '#ef3552'];
 
 var colorDay = d3.scale.linear()
-    .domain([minPowerDay, 3000, maxPowerDay])
-    .range(['#ffeda0', '#feb24c', '#f03b20']);
+    .domain(linspace(minPowerDay, maxPowerDay, colorsBlue2Pink.length))
+    .range(colorsBlue2Pink);
 
 var colorWeekHour = d3.scale.linear()
     .domain([minPowerWeekHour, 5000, maxPowerWeekHour])
@@ -72,10 +75,21 @@ function color(power) {
     return col;
 }
 
+function linspace(xi, xf, n) {
+    var l = xf - xi;
+    var increment = l / (n-1);
+    var vect = [];
+    vect.push(xi);
+    for (var i = 0; i < n - 1; i++) {
+        vect.push(vect[i] + increment);           
+    }; 
+
+    return vect;    
+}
 
 var sizeDay = d3.scale.linear()
-.domain([minPowerDay, maxPowerDay])
-.range([5, 15]);
+    .domain([minPowerDay, maxPowerDay])
+    .range([5, 15]);
 
 var sizeWeekHour = d3.scale.linear()
     .domain([minPowerWeekHour, maxPowerWeekHour])
