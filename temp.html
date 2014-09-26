@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+	
+	<script src="http://d3js.org/d3.v3.min.js"></script>
+
+	<link rel="stylesheet" type="text/css" href="css/tipsy.css">
+    <script type="text/javascript" src="js/jquery.tipsy.js"></script>
+
+    <style type="text/css">
+    	svg{
+    		border: 1px solid;
+    	}
+
+		.overlay {
+  		  	fill: none;
+		  	/*pointer-events: all;*/
+		}
+    </style>
+
+</head>
+
+<body>
+
+	<p>This is a paragraph.</p>
+	<p id="p2" title="second">This is a paragraph.</p>
+	<p>This is a paragraph.</p>
+
+	<script type="text/javascript">
+		
+
+		var zoomBehav = d3.behavior.zoom();
+
+		var svg = d3.select("body").append("svg");
+			
+		
+
+		svg.attr("height", 400)
+			.attr("width", 400)
+	    	.call(d3.behavior.zoom().scaleExtent([1, 8]).on("zoom", zoom));
+
+		d3.json("data/powerConsumpData.json", function(powerJson) {
+			d3.select("svg").selectAll("circle")
+				.data([5, 35])
+			  .enter()
+			  	.append("circle")
+			  	.attr("cx", function(d) {return d;})
+			  	.attr("cy", function(d) {return d;})
+			  	.attr("r", 12);
+
+			$( "circle" ).tipsy({
+	        	html: true, 
+	        	title: function() { return 'ola'; }
+	    	});
+
+		});
+
+  		
+
+
+		function zoom() {
+			svg.attr("transform", "translate(" + d3.event.translate + ")scale(" + d3.event.scale + ")");
+		}
+
+	</script>
+
+</body>
+</html>

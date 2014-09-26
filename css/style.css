@@ -12,6 +12,12 @@ div {
     color: #C4C4C4;
 }
 
+.jumbotron {
+	padding-top: 20px;
+	padding-bottom: 20px;
+}
+
+
 .btn-primary {
 	background-image: none;
 	text-shadow: none;
@@ -34,7 +40,7 @@ div {
   	border-bottom-color: #C4C4C4;
     border-bottom-width: 1px;
     padding-top: 5px;
-    
+
 }
 
 .view-buttons {
@@ -42,3 +48,16 @@ div {
 	margin-bottom: 10px;
 }
 
+#credits {
+	margin-right: 10px;
+	margin-top: 80px;
+}
+
+#credits p {
+	text-align: right;
+	font-size: 12px;
+}
+
+#vis {
+	margin-bottom: 20px;
+}

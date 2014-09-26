@@ -39,6 +39,7 @@ svg.attr("height", height)
             .on("zoom", zoom)
     );
 
+
 //var maxPowerDay = Math.max.apply(Math,powerDay.map(function(o){return o.power;}));
 var maxPowerDay = 5394,
     minPowerDay = 1931,
@@ -49,18 +50,19 @@ var maxPowerDay = 5394,
 
 
 var colorsBlue2Pink = ['#17c7de', '#4aa5be', '#7588a2', '#a66782', '#c25470', '#dd415f', '#ef3552'];
+var colorsBrewer = ['#ffeda0', '#feb24c', '#f03b20'];
 
 var colorDay = d3.scale.linear()
-    .domain(linspace(minPowerDay, maxPowerDay, colorsBlue2Pink.length))
-    .range(colorsBlue2Pink);
+    .domain(linspace(minPowerDay, maxPowerDay, colorsBrewer.length))
+    .range(colorsBrewer);
 
 var colorWeekHour = d3.scale.linear()
-    .domain([minPowerWeekHour, 5000, maxPowerWeekHour])
-    .range(['#ffeda0', '#feb24c', '#f03b20']);
+    .domain(linspace(minPowerWeekHour, maxPowerWeekHour, colorsBrewer.length))
+    .range(colorsBrewer);
 
 var colorMonthHour = d3.scale.linear()
-    .domain([minPowerMonthHour, 1200, maxPowerMonthHour])
-    .range(['#ffeda0', '#feb24c', '#f03b20']);
+    .domain(linspace(minPowerMonthHour, maxPowerMonthHour, colorsBrewer.length))
+    .range(colorsBrewer);
 
 function color(power) {
     if (indx === 0) {
@@ -187,8 +189,8 @@ d3.json("data/powerConsumpData.json", function(powerJson) {
     }
 
     powerData.push([clone(powerDay[0]), clone(powerWeekHour[0]), clone(powerMonthHour[0])]);
-    var j = 0;
-    var k = 0;
+    var j = 0,
+        k = 0;
     for (var i = 0; i <= powerMonthHour.length -1; i++) {
         powerData.push([clone(powerDay[j]), clone(powerWeekHour[k]), clone(powerMonthHour[i])]);
         j === powerDay.length - 1 ? j = 0 : j++; // REPASAR EL -1
@@ -207,6 +209,15 @@ d3.json("data/powerConsumpData.json", function(powerJson) {
         })
         .attr("cy", function(d) { return yPos(d[indx]); });
 
+    $( "circle" ).tipsy({
+        gravity: 'w',
+        html: true, 
+        title: function() {
+            var d = this.__data__;
+            return tipInfo(d); }
+            //return 'circle<br>and<br><b>bold</b>: 345'; }
+    });
+
 });
 
 
@@ -221,6 +232,8 @@ function renderData() {
     
     zoomBehav.scale(1);
     zoomBehav.translate([0, 0]);
+
+    updateExplanation()
 }
 
 function viewMatrix() {
