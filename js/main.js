@@ -1,5 +1,5 @@
 var svg = d3.select("#vis").append("svg"),
-    margin = {top: 50, bottom: 50, left: 50, right: 50},
+    margin = {top: 15, bottom: 15, left: 50, right: 50},
     height = 550,
     width = 850,
     duration = 2500,
@@ -7,12 +7,12 @@ var svg = d3.select("#vis").append("svg"),
     indx = 0;
 
 var rDaysYear = 200,
-    rMonthsYearOuter = 200,
-    rMonthsYearInner = 30,
+    rMonthsYearOuter = 220,
+    rMonthsYearInner = 35,
     rDaysWeekOuter = 170,
     rDaysWeekInner = 44,
-    rDaysMonthOuter = 200,
-    rDaysMonthInner = 10;
+    rDaysMonthOuter = 240,
+    rDaysMonthInner = 15;
 
 var disHor_daysYear = (width/2) - rDaysYear,
     disVer_daysYear = (height/2) - rDaysYear,

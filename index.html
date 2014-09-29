@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+
+        <title>Energy consumption</title>
+        
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+
+        <!-- Bootstrap -->
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <!-- <meta name="viewport" content="width=device-width, initial-scale=1"> -->
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+
+        <link rel="stylesheet" type="text/css" href="css/style.css">
+        <script src="http://d3js.org/d3.v3.min.js"></script>
+
+        <!-- <script type="text/javascript" src="http://code.jquery.com/jquery-1.6.2.min.js"></script> -->
+        <link rel="stylesheet" type="text/css" href="css/tipsy.css">
+        <script type="text/javascript" src="js/jquery.tipsy.js"></script>
+
+
+    <style type="text/css">
+    </style>
+
+    </head>
+    
+    <body>
+        <div class="jumbotron">
+            <div class="container">
+                <a href="http://www.livingfordata.com" target="_blank">About</a>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-xs-9">
+                    <h1>Building energy consumption</h1>
+                    <p class="lead">Visualization of energy use in a educational building located in Valencia (Spain) during the year 2011.</p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="view-buttons col-xs-9">
+                    <button class="btn btn-primary active-button" type="button" onclick="viewMatrix()">Matrix</button>
+                    <button class="btn btn-primary" type="button" onclick="viewDaysYear()">Days</button>
+                    <button class="btn btn-primary" type="button" onclick="viewMonthsYear()">Months</button>
+                    <button class="btn btn-primary" type="button" onclick="viewDaysWeek()">Days of the week</button>
+                    <button class="btn btn-primary" type="button" onclick="viewDaysMonth()">Days of the month</button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-9" id="vis">
+                    <script type="text/javascript" src="js/main.js"></script>
+                </div>
+                <div class="explanation col-xs-3">
+                    <p><b>How to read it?</b> </p>
+                    <p id="textExplanation">The original data is organized in a matrix where each column corresponds with a day of the week and each row is a different week. In the visualization, each datum is represented with a circle which size and color is proportional to the energy used. <br> Move the mouse over the circles to view detailed information. Zoom and pan to explore the data. </p>
+                </div>
+
+            </div>
+            
+            <div class="row">
+                <div class="col-xs-9">
+                </div>
+            </div>
+        </div>
+
+        <script type="text/javascript" src="js/logicUI.js"></script>
+
+        <footer>
+            <div id="credits">
+                <p>Based on the <a href="https://www.youtube.com/watch?v=LlhaKx9iUgg" target="_blank">work</a> of Juan José Carrasco.</p>
+            </div>
+        </footer>
+    </body>
+    
+    
+</html>
+
+
+<!--
+Visual Analytics you can explore all relevant data quickly and easily. Interactive data visualization software lets you look at more options, uncover hidden opportunities, identify key relationships and make more precise decisions faster than ever before. 
+
+-->
