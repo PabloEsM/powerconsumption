@@ -1,3 +1,94 @@
+@grid-float-breakpoint:     768px;
+
+body {
+	background-color: #182128;
+}
 svg {
-	border: 1px solid black;
+	border: 1px solid;
+	border-color: #28303A;
+	background-color: #182128;
+}
+
+div {
+    /*border: 1px solid #FF0000;*/
+    color: #C4C4C4;
+}
+
+.jumbotron {
+	padding-top: 10px;
+	padding-bottom: 10px;
+	margin-bottom: 0px;
+	background-color: #333A42;
+	text-transform: uppercase;
+	font-size: 12px;
+	text-align: right;
+}
+
+.container {
+	width: 1170px !important;
+}
+
+
+.btn-primary {
+	background-image: none;
+	text-shadow: none;
+	border-radius: 0px;
+	border: none;
+	text-transform: uppercase;
+	font-size: 12px;
+	width: 150px;
+}
+
+.btn-primary:hover {
+	background-color: orange;
+}
+
+.active-button {
+	background-color: orange;
+}
+
+.explanation {
+	border-top-style: dashed;
+	border-top-color: #C4C4C4;
+	border-top-width: 1px;
+	border-bottom-style: dashed;
+  	border-bottom-color: #C4C4C4;
+    border-bottom-width: 1px;
+    padding-top: 5px;
+
+}
+
+.view-buttons {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+#credits {
+	margin-left: 10px;
+	margin-top: 80px;
+}
+
+#credits p {
+	text-align: left;
+	font-size: 12px;
+}
+
+#vis {
+	margin-bottom: 20px;
+}
+
+/* Sticky footer */
+html {
+    position: relative;
+    min-height: 100%;
+}
+body {
+    margin: 0 0 100px; /* bottom = footer height */
+}
+footer {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    height: 100px;
+    width: 100%;
 }
